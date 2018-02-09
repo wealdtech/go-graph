@@ -16,7 +16,7 @@ package graphs
 import (
 	"fmt"
 
-	"github.com/wealdtech/graph"
+	"github.com/wealdtech/go-graph"
 )
 
 type UndirectedGraph struct {

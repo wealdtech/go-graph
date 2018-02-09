@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/wealdtech/graph"
+	"github.com/wealdtech/go-graph"
 )
 
 func Marshal(g graph.Graph) []byte {

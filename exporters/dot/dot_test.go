@@ -17,9 +17,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/wealdtech/graph/edges"
-	"github.com/wealdtech/graph/graphs"
-	"github.com/wealdtech/graph/nodes"
+	"github.com/wealdtech/go-graph/edges"
+	"github.com/wealdtech/go-graph/graphs"
+	"github.com/wealdtech/go-graph/nodes"
 )
 
 func TestSimple(t *testing.T) {

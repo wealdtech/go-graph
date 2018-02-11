@@ -71,15 +71,23 @@ func (g *UndirectedGraph) Edges(nid int64) []graph.Edge {
 }
 
 func (g *UndirectedGraph) ConnectedNodes(nid int64, distance int64) []graph.Node {
-	// TODO handle distances other than 1
-	if distance != 1 {
-		panic("Distance not supported")
-	}
-	nodes := make([]graph.Node, 0, len(g.edges[nid]))
-	for nid, _ := range g.edges[nid] {
+	nidMap := make(map[int64]bool)
+	g.connectedNodes(nid, distance, &nidMap)
+	nodes := make([]graph.Node, 0, len(nidMap))
+	for nid := range nidMap {
 		nodes = append(nodes, g.nodes[nid])
 	}
 	return nodes
+}
+
+func (g *UndirectedGraph) connectedNodes(nid int64, distance int64, nidMap *map[int64]bool) {
+	(*nidMap)[nid] = true
+	if distance > 0 {
+		for neighbourid, _ := range g.edges[nid] {
+			(*nidMap)[neighbourid] = true
+			g.connectedNodes(neighbourid, distance-1, nidMap)
+		}
+	}
 }
 
 func (g *UndirectedGraph) Edge(aid, bid int64) graph.Edge {

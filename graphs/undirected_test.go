@@ -74,7 +74,7 @@ func TestAddRemoveEdges(t *testing.T) {
 	assert.NotNil(t, storedEdge12)
 	assert.Equal(t, edge12, storedEdge12)
 	node1ConnectedNodes := g.ConnectedNodes(1, 1)
-	assert.Len(t, node1ConnectedNodes, 1)
+	assert.Len(t, node1ConnectedNodes, 2)
 	// Should be able to pull the reverse
 	storedEdge21 := g.Edge(2, 1)
 	assert.NotNil(t, storedEdge21)
@@ -91,5 +91,51 @@ func TestAddRemoveEdges(t *testing.T) {
 	assert.NoError(t, err)
 
 	node1ConnectedNodes = g.ConnectedNodes(1, 1)
-	assert.Len(t, node1ConnectedNodes, 2)
+	assert.Len(t, node1ConnectedNodes, 3)
+}
+
+func TestDistance(t *testing.T) {
+	g := NewUndirectedGraph()
+
+	// Add four nodes
+	node1 := nodes.NewSimpleNode(1)
+	err := g.AddNode(node1)
+	assert.NoError(t, err)
+	node2 := nodes.NewSimpleNode(2)
+	err = g.AddNode(node2)
+	assert.NoError(t, err)
+	node3 := nodes.NewSimpleNode(3)
+	err = g.AddNode(node3)
+	assert.NoError(t, err)
+	node4 := nodes.NewSimpleNode(4)
+	err = g.AddNode(node4)
+	assert.NoError(t, err)
+
+	// Ensure that connected nodes to 1 is 1
+	assert.Len(t, g.ConnectedNodes(1, 1), 1)
+
+	// Add an edge between two nodes
+	edge12 := edges.NewUndirectedEdge(1, 2)
+	err = g.AddEdge(edge12)
+	assert.NoError(t, err)
+
+	// Ensure that connected nodes to 1 is 1 with 0 length
+	assert.Len(t, g.ConnectedNodes(1, 0), 1)
+
+	// Ensure that connected nodes to 1 is 2 with 1 length
+	assert.Len(t, g.ConnectedNodes(1, 1), 2)
+
+	// Add another edge between two nodes
+	edge23 := edges.NewUndirectedEdge(2, 3)
+	err = g.AddEdge(edge23)
+	assert.NoError(t, err)
+
+	// Ensure that connected nodes to 1 is 1 with 0 length
+	assert.Len(t, g.ConnectedNodes(1, 0), 1)
+
+	// Ensure that connected nodes to 1 is 2 with 1 length
+	assert.Len(t, g.ConnectedNodes(1, 1), 2)
+
+	// Ensure that connected nodes to 1 is 3 with 2 length
+	assert.Len(t, g.ConnectedNodes(1, 3), 3)
 }

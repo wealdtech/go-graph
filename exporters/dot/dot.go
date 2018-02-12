@@ -28,39 +28,33 @@ func Marshal(g graph.Graph) []byte {
 	graphDefaults(g, &buffer)
 	nodeDefaults(g, &buffer)
 	edgeDefaults(g, &buffer)
+	nodeEntities(g, &buffer) // nodeEntities writes out edges as well
 
-	nodeEntities(g, &buffer)
 	buffer.WriteString("}")
 	return buffer.Bytes()
 }
 
 func graphDefaults(g graph.Graph, buffer *bytes.Buffer) {
 	if len(*g.GraphDefaults()) > 0 {
-		buffer.WriteString("  graph [")
-		for _, key := range sortAttrKeys(g.GraphDefaults()) {
-			buffer.WriteString(fmt.Sprintf(" %v=%v", key, g.GraphDefault(key)))
-		}
-		buffer.WriteString(" ];\n")
+		buffer.WriteString("  graph")
+		writeAttrs(g, g.GraphDefaults(), buffer)
+		buffer.WriteString(";\n")
 	}
 }
 
 func nodeDefaults(g graph.Graph, buffer *bytes.Buffer) {
 	if len(*g.NodeDefaults()) > 0 {
-		buffer.WriteString("  node [")
-		for _, key := range sortAttrKeys(g.NodeDefaults()) {
-			buffer.WriteString(fmt.Sprintf(" %v=%v", key, g.NodeDefault(key)))
-		}
-		buffer.WriteString(" ];\n")
+		buffer.WriteString("  node")
+		writeAttrs(g, g.NodeDefaults(), buffer)
+		buffer.WriteString(";\n")
 	}
 }
 
 func edgeDefaults(g graph.Graph, buffer *bytes.Buffer) {
 	if len(*g.EdgeDefaults()) > 0 {
-		buffer.WriteString("  edge [")
-		for _, key := range sortAttrKeys(g.EdgeDefaults()) {
-			buffer.WriteString(fmt.Sprintf(" %v=%v", key, g.EdgeDefault(key)))
-		}
-		buffer.WriteString(" ];\n")
+		buffer.WriteString("  edge")
+		writeAttrs(g, g.EdgeDefaults(), buffer)
+		buffer.WriteString(";\n")
 	}
 }
 
@@ -73,13 +67,7 @@ func nodeEntities(g graph.Graph, buffer *bytes.Buffer) {
 	for i := range sortedNodeKeys {
 		node := g.Node(sortedNodeKeys[i])
 		buffer.WriteString(fmt.Sprintf("  %d", node.Id()))
-		if len(*node.Attributes()) > 0 {
-			buffer.WriteString(" [")
-			for _, key := range sortAttrKeys(node.Attributes()) {
-				buffer.WriteString(fmt.Sprintf(" %v=%v", key, node.Attribute(key)))
-			}
-			buffer.WriteString(" ]")
-		}
+		writeAttrs(g, node.Attributes(), buffer)
 		buffer.WriteString(";\n")
 		nodeEdges(g, node.Id(), buffer)
 	}
@@ -96,14 +84,18 @@ func nodeEdges(g graph.Graph, nid int64, buffer *bytes.Buffer) {
 	for j := range sortedEdgeKeys {
 		edge := g.Edge(nid, sortedEdgeKeys[j])
 		buffer.WriteString(fmt.Sprintf("  %d -- %d", edge.From(), edge.To()))
-		if len(*edge.Attributes()) > 0 {
-			buffer.WriteString(" [")
-			for _, key := range sortAttrKeys(edge.Attributes()) {
-				buffer.WriteString(fmt.Sprintf(" %v=%v", key, edge.Attribute(key)))
-			}
-			buffer.WriteString(" ]")
-		}
+		writeAttrs(g, edge.Attributes(), buffer)
 		buffer.WriteString(";\n")
+	}
+}
+
+func writeAttrs(g graph.Graph, attrs *map[interface{}]interface{}, buffer *bytes.Buffer) {
+	if attrs != nil && len(*attrs) > 0 {
+		buffer.WriteString(" [")
+		for _, key := range sortAttrKeys(attrs) {
+			buffer.WriteString(fmt.Sprintf(" %v=\"%v\"", key, (*attrs)[key]))
+		}
+		buffer.WriteString(" ]")
 	}
 }
 

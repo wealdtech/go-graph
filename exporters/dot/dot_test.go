@@ -49,7 +49,7 @@ func TestSimple2(t *testing.T) {
 
 	output := Marshal(g)
 	assert.Equal(t, `graph g {
-  1 [ color=red shape=circle ];
+  1 [ color="red" shape="circle" ];
   1 -- 2;
   2;
 }`, string(output))
@@ -67,8 +67,8 @@ func TestGraphLevelAttrs(t *testing.T) {
 	assert.NoError(t, err)
 	output := Marshal(g)
 	assert.Equal(t, `graph g {
-  node [ color=blue shape=diamond ];
-  1 [ color=red shape=circle ];
+  node [ color="blue" shape="diamond" ];
+  1 [ color="red" shape="circle" ];
   2;
 }`, string(output))
 }

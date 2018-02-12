@@ -19,16 +19,29 @@ import (
 	"sort"
 
 	"github.com/wealdtech/go-graph"
+	"github.com/wealdtech/go-graph/graphs"
 )
 
 func Marshal(g graph.Graph) []byte {
 	var buffer bytes.Buffer
-	buffer.WriteString("graph g {\n")
+	var directed bool
+	switch g.(type) {
+	case *graphs.UndirectedGraph:
+		directed = false
+	case *graphs.DirectedGraph:
+		directed = true
+	}
+
+	if directed {
+		buffer.WriteString("digraph g {\n")
+	} else {
+		buffer.WriteString("graph g {\n")
+	}
 
 	graphDefaults(g, &buffer)
 	nodeDefaults(g, &buffer)
 	edgeDefaults(g, &buffer)
-	nodeEntities(g, &buffer) // nodeEntities writes out edges as well
+	nodeEntities(g, &buffer, directed) // nodeEntities writes out edges as well
 
 	buffer.WriteString("}")
 	return buffer.Bytes()
@@ -58,7 +71,7 @@ func edgeDefaults(g graph.Graph, buffer *bytes.Buffer) {
 	}
 }
 
-func nodeEntities(g graph.Graph, buffer *bytes.Buffer) {
+func nodeEntities(g graph.Graph, buffer *bytes.Buffer, directed bool) {
 	var sortedNodeKeys []int64
 	for _, node := range g.Nodes() {
 		sortedNodeKeys = append(sortedNodeKeys, node.Id())
@@ -69,11 +82,11 @@ func nodeEntities(g graph.Graph, buffer *bytes.Buffer) {
 		buffer.WriteString(fmt.Sprintf("  %d", node.Id()))
 		writeAttrs(g, node.Attributes(), buffer)
 		buffer.WriteString(";\n")
-		nodeEdges(g, node.Id(), buffer)
+		nodeEdges(g, node.Id(), buffer, directed)
 	}
 }
 
-func nodeEdges(g graph.Graph, nid int64, buffer *bytes.Buffer) {
+func nodeEdges(g graph.Graph, nid int64, buffer *bytes.Buffer, directed bool) {
 	var sortedEdgeKeys []int64
 	for _, edge := range g.Edges(nid) {
 		if edge.From() == nid {
@@ -83,7 +96,11 @@ func nodeEdges(g graph.Graph, nid int64, buffer *bytes.Buffer) {
 	sort.Slice(sortedEdgeKeys, func(i, j int) bool { return sortedEdgeKeys[i] < sortedEdgeKeys[j] })
 	for j := range sortedEdgeKeys {
 		edge := g.Edge(nid, sortedEdgeKeys[j])
-		buffer.WriteString(fmt.Sprintf("  %d -- %d", edge.From(), edge.To()))
+		if directed {
+			buffer.WriteString(fmt.Sprintf("  %d -> %d", edge.From(), edge.To()))
+		} else {
+			buffer.WriteString(fmt.Sprintf("  %d -- %d", edge.From(), edge.To()))
+		}
 		writeAttrs(g, edge.Attributes(), buffer)
 		buffer.WriteString(";\n")
 	}

@@ -22,7 +22,7 @@ import (
 	"github.com/wealdtech/go-graph/nodes"
 )
 
-func TestSimple(t *testing.T) {
+func TestUndirected(t *testing.T) {
 	g := graphs.NewUndirectedGraph()
 	node1 := nodes.NewSimpleNode(1)
 	err := g.AddNode(node1)
@@ -34,7 +34,7 @@ func TestSimple(t *testing.T) {
 }`, string(output))
 }
 
-func TestSimple2(t *testing.T) {
+func TestUndirected2(t *testing.T) {
 	g := graphs.NewUndirectedGraph()
 	node1 := nodes.NewSimpleNode(1)
 	node1.SetAttributes(map[interface{}]interface{}{"color": "red", "shape": "circle"})
@@ -51,6 +51,26 @@ func TestSimple2(t *testing.T) {
 	assert.Equal(t, `graph g {
   1 [ color="red" shape="circle" ];
   1 -- 2;
+  2;
+}`, string(output))
+}
+
+func TestDirected(t *testing.T) {
+	g := graphs.NewDirectedGraph()
+	node1 := nodes.NewSimpleNode(1)
+	err := g.AddNode(node1)
+	assert.NoError(t, err)
+	node2 := nodes.NewSimpleNode(2)
+	err = g.AddNode(node2)
+	assert.NoError(t, err)
+	edge12 := edges.NewDirectedEdge(1, 2)
+	err = g.AddEdge(edge12)
+	assert.NoError(t, err)
+
+	output := Marshal(g)
+	assert.Equal(t, `digraph g {
+  1;
+  1 -> 2;
   2;
 }`, string(output))
 }

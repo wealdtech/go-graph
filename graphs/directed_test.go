@@ -21,8 +21,8 @@ import (
 	"github.com/wealdtech/go-graph/nodes"
 )
 
-func TestUndirectedGraphAddRemoveNodes(t *testing.T) {
-	g := NewUndirectedGraph()
+func TestDirectedGraphAddRemoveNodes(t *testing.T) {
+	g := NewDirectedGraph()
 
 	// Add a node
 	node1 := nodes.NewSimpleNode(1)
@@ -52,8 +52,8 @@ func TestUndirectedGraphAddRemoveNodes(t *testing.T) {
 	assert.Len(t, allNodes, 1)
 }
 
-func TestUndirectedGraphAddRemoveEdges(t *testing.T) {
-	g := NewUndirectedGraph()
+func TestDirectedGraphAddRemoveEdges(t *testing.T) {
+	g := NewDirectedGraph()
 
 	// Add three nodes
 	node1 := nodes.NewSimpleNode(1)
@@ -67,7 +67,7 @@ func TestUndirectedGraphAddRemoveEdges(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Add an edge between two nodes
-	edge12 := edges.NewUndirectedEdge(1, 2)
+	edge12 := edges.NewDirectedEdge(1, 2)
 	err = g.AddEdge(edge12)
 	assert.NoError(t, err)
 	storedEdge12 := g.Edge(1, 2)
@@ -75,18 +75,17 @@ func TestUndirectedGraphAddRemoveEdges(t *testing.T) {
 	assert.Equal(t, edge12, storedEdge12)
 	node1ConnectedNodes := g.ConnectedNodes(1, 1)
 	assert.Len(t, node1ConnectedNodes, 2)
-	// Should be able to pull the reverse
+	// Should not be able to pull the reverse
 	storedEdge21 := g.Edge(2, 1)
-	assert.NotNil(t, storedEdge21)
-	assert.Equal(t, edge12, storedEdge21)
+	assert.Nil(t, storedEdge21)
 
 	// Try to add the same edge again; should fail
-	badEdge := edges.NewUndirectedEdge(1, 2)
+	badEdge := edges.NewDirectedEdge(1, 2)
 	err = g.AddEdge(badEdge)
 	assert.Error(t, err)
 
 	// Add another edge between two nodes
-	edge13 := edges.NewUndirectedEdge(1, 3)
+	edge13 := edges.NewDirectedEdge(1, 3)
 	err = g.AddEdge(edge13)
 	assert.NoError(t, err)
 
@@ -94,8 +93,8 @@ func TestUndirectedGraphAddRemoveEdges(t *testing.T) {
 	assert.Len(t, node1ConnectedNodes, 3)
 }
 
-func TestUndirectedGraphDistance(t *testing.T) {
-	g := NewUndirectedGraph()
+func TestDirectedGraphDistance(t *testing.T) {
+	g := NewDirectedGraph()
 
 	// Add four nodes
 	node1 := nodes.NewSimpleNode(1)
@@ -115,7 +114,7 @@ func TestUndirectedGraphDistance(t *testing.T) {
 	assert.Len(t, g.ConnectedNodes(1, 1), 1)
 
 	// Add an edge between two nodes
-	edge12 := edges.NewUndirectedEdge(1, 2)
+	edge12 := edges.NewDirectedEdge(1, 2)
 	err = g.AddEdge(edge12)
 	assert.NoError(t, err)
 
@@ -126,7 +125,7 @@ func TestUndirectedGraphDistance(t *testing.T) {
 	assert.Len(t, g.ConnectedNodes(1, 1), 2)
 
 	// Add another edge between two nodes
-	edge23 := edges.NewUndirectedEdge(2, 3)
+	edge23 := edges.NewDirectedEdge(2, 3)
 	err = g.AddEdge(edge23)
 	assert.NoError(t, err)
 
